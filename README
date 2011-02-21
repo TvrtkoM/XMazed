@@ -1,0 +1,8 @@
+The game is far from finished, but if you want to try or help developing it install
+gtkmm & cairomm libraries and run the commands below:
+
+$ scons
+...
+$ bin/xmazed
+
+You'll need scons as well.
