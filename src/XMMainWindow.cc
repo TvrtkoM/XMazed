@@ -19,7 +19,8 @@
 
 using namespace std;
 
-XMMainWindow::XMMainWindow() : builder(Gtk::Builder::create()), xmmaze(HARD)
+XMMainWindow::XMMainWindow() 
+  : builder(Gtk::Builder::create()), MainVBox(0L), AFrame(0L), xmmaze(HARD)
 {
   this->signal_delete_event().connect
     (sigc::mem_fun(*this, &XMMainWindow::OnQuit));
@@ -34,6 +35,11 @@ void XMMainWindow::BuildUI()
   AFrame->add(xmmaze);
   add(*MainVBox);
   show_all();
+}
+
+XMMainWindow::~XMMainWindow()
+{
+  delete MainVBox;
 }
 
 //

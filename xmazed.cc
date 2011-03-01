@@ -21,15 +21,16 @@ using namespace std;
 
 int main(int argc, char *argv[]) 
 {
+
   Gtk::Main MainApp(argc, argv);
-    
+
   XMMainWindow W;
 
   try 
     {
       W.BuildUI();
     }
-  catch (Glib::FileError) 
+  catch (const Glib::FileError &e) 
     {
       cerr << "Glade file not found. Exiting...\n";
       return 1;

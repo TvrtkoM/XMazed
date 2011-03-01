@@ -38,6 +38,7 @@ class XMMainWindow : public Gtk::Window
 
 public:
   XMMainWindow();
+  ~XMMainWindow();
   void BuildUI();
 };
 

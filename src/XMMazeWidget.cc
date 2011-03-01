@@ -115,7 +115,7 @@ void XMActor::Draw(Cairo::RefPtr<Cairo::Context> cr) const
   // TODO: use png image as actor
   cr->save();
   cr->rectangle(mX, mY, mSideLen, mSideLen);
-  cr->set_source_rgb(0.8, 0.4, 0.6); // ???
+  cr->set_source_rgb(0.8, 0.4, 0.6);
   cr->stroke();
   cr->restore();
 }
@@ -311,92 +311,81 @@ bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
 }
 
 // build maze using recursive backtracker technique
-// should optimize a bit but works
 void XMMazeWidget::BuildMaze()
 {
   int adjusted = 0;
   std::stack<XMMazeCell> cell_stack;
-  XMMazeCell curr_cell;
-  //curr_cell.SetSideLen(mSideLen);
   XMMazeCell next_cell;
   std::srand(time(0L));
   while(adjusted != CellNum() - 1)
     {
-      curr_cell = next_cell;
-      std::vector<Wall> walls = curr_cell.Walls();
+      XMMazeCell curr_cell = next_cell;
+      std::vector<Wall> exits = curr_cell.Walls();
       int x = curr_cell.GetX(); int y = curr_cell.GetY();
-      /*
-	if((y > mLen - mSideLen || x > mLen - mSideLen) ||
-	(y < 0 || x < 0))
-      	throw std::runtime_error("x or y out of range\n");
-      */
+      // if((y > mLen - mSideLen || x > mLen - mSideLen) ||
+      // (y < 0 || x < 0))
+      // throw std::runtime_error("x or y out of range\n");
       Wall carve;
       if(x == 0 || 
 	 mCells.find(XMMazeCell(x - mSideLen, y, mSideLen)) != mCells.end())
-	walls.erase(std::remove(walls.begin(), walls.end(), WEST), walls.end());
+	exits.erase(std::remove(exits.begin(), exits.end(), WEST), exits.end());
       if(y == 0 || 
 	 mCells.find(XMMazeCell(x, y - mSideLen, mSideLen)) != mCells.end())
-	walls.erase(std::remove(walls.begin(), walls.end(), NORTH), walls.end());
+	exits.erase(std::remove(exits.begin(), exits.end(), NORTH), exits.end());
       if(x == mLen - mSideLen ||
 	 mCells.find(XMMazeCell(x + mSideLen, y, mSideLen)) != mCells.end())
-	walls.erase(std::remove(walls.begin(), walls.end(), EAST), walls.end());
+	exits.erase(std::remove(exits.begin(), exits.end(), EAST), exits.end());
       if(y == mLen - mSideLen ||
 	 mCells.find(XMMazeCell(x, y + mSideLen, mSideLen)) != mCells.end())
-	walls.erase(std::remove(walls.begin(), walls.end(), SOUTH), walls.end());
-      std::pair<std::set<XMMazeCell>::iterator, bool> ret;
-      //std::cout << "possible exits: " << walls.size() << std::endl;
+	exits.erase(std::remove(exits.begin(), exits.end(), SOUTH), exits.end());
+
+      //std::cout << "possible exits: " << exits.size() << std::endl;
       //std::cout << " -> ";
-      //print_walls(walls);
-      if(walls.size() != 0)
+      //print_walls(exits);
+      if(exits.size() != 0)
 	{
-	  int c = std::rand() % walls.size();
-	  carve = walls[c];
+	  int c = std::rand() % exits.size();
+	  carve = exits[c];
 	  curr_cell.SetWall(carve, false);
 	  //print_walls(curr_cell.Walls());
 	  curr_cell.SetSideLen(mSideLen);
+	  cell_stack.push(curr_cell);
+	  Wall nextw;
+	  if(carve == WEST || carve == SOUTH)
+	    nextw = (Wall)(carve + 1);
+	  else
+	    nextw = (Wall)(carve - 1);
+	  int next_x = x, next_y = y;
+	  switch(nextw)
+	    {
+	    case(WEST):
+	      next_x = x + mSideLen; break;
+	    case(EAST):
+	      next_x = x - mSideLen; break;
+	    case(SOUTH):
+	      next_y = y - mSideLen; break;
+	    case(NORTH):
+	      next_y = y + mSideLen; break;
+	    }
+	  next_cell.SetWalls(true);
+	  next_cell.SetWall(nextw, false);
+	  //print_walls(next_cell.Walls());
+	  next_cell.SetPos(next_x, next_y);
 	}
       else
 	{
 	  adjusted = curr_cell.Adjust();
 	  curr_cell.SetSideLen(mSideLen);
-	  ret = mCells.insert(curr_cell);
-	  if(!ret.second)
-	    {
-	      mCells.erase(ret.first);
-	      mCells.insert(curr_cell);
-	    }
 	  next_cell = cell_stack.top();
 	  cell_stack.pop();
-	  continue;
 	}
+      std::pair<std::set<XMMazeCell>::iterator, bool> ret;
       ret = mCells.insert(curr_cell);
       if(!ret.second) 
 	{
 	  mCells.erase(ret.first);
 	  mCells.insert(curr_cell);
 	}
-      cell_stack.push(curr_cell);
-      Wall nextw;
-      if(carve == WEST || carve == SOUTH)
-	nextw = (Wall)(carve + 1);
-      else
-	nextw = (Wall)(carve - 1);
-      int next_x = x, next_y = y;
-      switch(nextw)
-	{
-	case(WEST):
-	  next_x = x + mSideLen; break;
-	case(EAST):
-	  next_x = x - mSideLen; break;
-	case(SOUTH):
-	  next_y = y - mSideLen; break;
-	case(NORTH):
-	  next_y = y + mSideLen; break;
-	}
-      next_cell.SetWalls(true);
-      next_cell.SetWall(nextw, false); // ???
-      //print_walls(next_cell.Walls());
-      next_cell.SetPos(next_x, next_y);
     };
   mNewMaze = false;
 }
