@@ -146,16 +146,6 @@ inline int XMMazeCell::Adjust()
   return ++mNumAdjusted;
 }
 
-const int XMMazeCell::NumAdjusted() const
-{
-  return mNumAdjusted;
-}
-
-inline bool XMMazeCell::Adjusted() const
-{
-  return mAdjusted;
-}
-
 std::vector<Wall> XMMazeCell::Walls() const
 {
   std::vector<Wall> walls;
@@ -338,7 +328,6 @@ void XMMazeWidget::BuildMaze()
       if(y == mLen - mSideLen ||
 	 mCells.find(XMMazeCell(x, y + mSideLen, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), SOUTH), exits.end());
-
       //std::cout << "possible exits: " << exits.size() << std::endl;
       //std::cout << " -> ";
       //print_walls(exits);

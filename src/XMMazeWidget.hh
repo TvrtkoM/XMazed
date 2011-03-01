@@ -117,8 +117,6 @@ public:
   void SetWalls(bool set);
   bool IsWall(Wall wall) const;
   int Adjust();
-  const int NumAdjusted() const;
-  bool Adjusted() const;
   std::vector<Wall> Walls() const;
   void Draw(Cairo::RefPtr<Cairo::Context> cr) const;
   bool operator!=(const XMMazeCell &cell) const;
