@@ -67,31 +67,31 @@ inline int XMMazeLevel::CellNumSide() const
 }
 
 //
-// XMPos & XMSquare
+// XMSquare
 //
 
-inline void XMPos::SetX(int x)
+inline void XMSquare::SetX(int x)
 {
   mX = x;
 }
 
-inline void XMPos::SetY(int y)
+inline void XMSquare::SetY(int y)
 {
   mY = y;
 }
 
-inline void XMPos::SetPos(int x, int y)
+inline void XMSquare::SetPos(int x, int y)
 {
   mX = x;
   mY = y;
 }
 
-inline int XMPos::GetX() const
+inline int XMSquare::GetX() const
 {
   return mX;
 }
 
-inline int XMPos::GetY() const
+inline int XMSquare::GetY() const
 {
   return mY;
 }
@@ -104,6 +104,28 @@ inline void XMSquare::SetSideLen(int sidelen)
 inline int XMSquare::GetSideLen() const
 {
   return mSideLen;
+}
+
+inline bool XMSquare::operator!=(const XMSquare &square) const
+{
+  return (mX != square.GetX() || 
+	  mY != square.GetY() || 
+	  mSideLen != square.GetSideLen());
+}
+
+inline bool XMSquare::operator<(const XMSquare &square) const
+{
+  if(mSideLen != square.GetSideLen())
+    return (mSideLen < square.GetSideLen());
+  else
+    return (mY < square.GetY() || (mY == square.GetY() && mX < square.GetX()));
+}
+
+inline bool XMSquare::operator==(const XMSquare &square) const
+{
+  return (mX == square.GetX() &&
+	  mY == square.GetY() &&
+	  mSideLen == square.GetSideLen());
 }
 
 //
@@ -158,7 +180,7 @@ std::vector<Wall> XMMazeCell::Walls() const
   return walls;
 }
 
-void XMMazeCell::DrawLine(int x1, int y1, int x2, int y2, 
+inline void XMMazeCell::DrawLine(int x1, int y1, int x2, int y2, 
 			  Cairo::RefPtr<Cairo::Context> cr) const
 {
   cr->move_to(x1, y1);
@@ -183,28 +205,6 @@ void XMMazeCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
     DrawLine(x, y, x + sl, y, cr);
   cr->stroke();
   cr->restore();
-}
-
-bool XMMazeCell::operator!=(const XMMazeCell &cell) const
-{
-  return (mX != cell.GetX() || 
-	  mY != cell.GetY() || 
-	  mSideLen != cell.GetSideLen());
-}
-
-bool XMMazeCell::operator<(const XMMazeCell &cell) const
-{
-  if(mSideLen != cell.GetSideLen())
-    return (mSideLen < cell.GetSideLen());
-  else
-    return (mY < cell.GetY() || (mY == cell.GetY() && mX < cell.GetX()));
-}
-
-bool XMMazeCell::operator==(const XMMazeCell &cell) const
-{
-  return (mX == cell.GetX() &&
-	  mY == cell.GetY() &&
-	  mSideLen == cell.GetSideLen());
 }
 
 //

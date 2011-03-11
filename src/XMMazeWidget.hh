@@ -52,31 +52,27 @@ public:
 };
 
 //
-// XMPos & XMSquare
+// XMSquare
 //
 
-class XMPos
+class XMSquare
 {
 protected:
   int mX, mY;
+  int mSideLen;
 public:
-  XMPos(int x = 0, int y = 0) : mX(x), mY(y) { /* */ }
+  XMSquare(int x = 0, int y = 0, int sidelen = 0) 
+    : mX(x), mY(y), mSideLen(sidelen) { /* */ }
   void SetX(int x);
   void SetY(int y);
   void SetPos(int x, int y);
   int GetX() const;
   int GetY() const;
-};
-
-class XMSquare : public XMPos
-{
-protected:
-  int mSideLen;
-public:
-  XMSquare(int x = 0, int y = 0, int sidelen = 0) 
-    : XMPos(x, y), mSideLen(sidelen) { /* */ }
   void SetSideLen(int sidelen);
   int GetSideLen() const;
+  bool operator!=(const XMSquare &square) const;
+  bool operator<(const XMSquare &square) const;
+  bool operator==(const XMSquare &square) const;
 };
 
 //
@@ -119,9 +115,6 @@ public:
   int Adjust();
   std::vector<Wall> Walls() const;
   void Draw(Cairo::RefPtr<Cairo::Context> cr) const;
-  bool operator!=(const XMMazeCell &cell) const;
-  bool operator<(const XMMazeCell &cell) const;
-  bool operator==(const XMMazeCell &cell) const;
 };
 
 //
