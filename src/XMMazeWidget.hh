@@ -126,6 +126,7 @@ class XMMazeWidget : public Gtk::DrawingArea, public XMMazeLevel
 private:
   XMActor mA;
   std::set<XMMazeCell> mCells;
+  XMMazeCell mFinish;
   int mLen, mSideLen;
   int mMoveNum;
   bool mNewMaze;

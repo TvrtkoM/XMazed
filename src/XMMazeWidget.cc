@@ -212,10 +212,10 @@ void XMMazeCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 //
 
 XMMazeWidget::XMMazeWidget(Level level) 
-  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true)
+  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600),
+    mSideLen(mLen/CellNumSide()),
+    mFinish(mLen - mSideLen, mLen - mSideLen, mSideLen)
 {
-  mLen = 600;
-  mSideLen = mLen/CellNumSide();
   mA.SetSideLen(mSideLen);
 
   add_events(Gdk::KEY_PRESS_MASK);
@@ -311,6 +311,7 @@ void XMMazeWidget::BuildMaze()
     {
       XMMazeCell curr_cell = next_cell;
       std::vector<Wall> exits = curr_cell.Walls();
+      int end = mLen - mSideLen;
       int x = curr_cell.GetX(); int y = curr_cell.GetY();
       // if((y > mLen - mSideLen || x > mLen - mSideLen) ||
       // (y < 0 || x < 0))
@@ -322,10 +323,10 @@ void XMMazeWidget::BuildMaze()
       if(y == 0 || 
 	 mCells.find(XMMazeCell(x, y - mSideLen, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), NORTH), exits.end());
-      if(x == mLen - mSideLen ||
+      if(x == end ||
 	 mCells.find(XMMazeCell(x + mSideLen, y, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), EAST), exits.end());
-      if(y == mLen - mSideLen ||
+      if(y == end ||
 	 mCells.find(XMMazeCell(x, y + mSideLen, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), SOUTH), exits.end());
       //std::cout << "possible exits: " << exits.size() << std::endl;
