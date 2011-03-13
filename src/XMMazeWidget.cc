@@ -220,10 +220,9 @@ void XMMazeCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 //
 
 XMMazeWidget::XMMazeWidget(Level level) 
-  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600),
-    mSideLen(mLen/CellNumSide()),
-    mFinish(mLen - mSideLen, mLen - mSideLen, mSideLen)
+  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600)
 {
+  mSideLen = mLen/CellNumSide();
   mA.SetSideLen(mSideLen);
 
   add_events(Gdk::KEY_PRESS_MASK);
