@@ -157,6 +157,14 @@ inline void XMMazeCell::SetWalls(bool set)
   SetWall(NORTH, set);
 }
 
+inline const XMMazeCell &XMMazeCell::Set(int x, int y, int sidelen)
+{
+  mX = x;
+  mY = y;
+  mSideLen = sidelen;
+  return *this;
+}
+
 inline bool XMMazeCell::IsWall(Wall wall) const
 {
   return mWalls.find(wall)->second;
@@ -317,17 +325,18 @@ void XMMazeWidget::BuildMaze()
       // (y < 0 || x < 0))
       // throw std::runtime_error("x or y out of range\n");
       Wall carve;
+      XMMazeCell test_cell;
       if(x == 0 || 
-	 mCells.find(XMMazeCell(x - mSideLen, y, mSideLen)) != mCells.end())
+	 mCells.find(test_cell.Set(x - mSideLen, y, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), WEST), exits.end());
       if(y == 0 || 
-	 mCells.find(XMMazeCell(x, y - mSideLen, mSideLen)) != mCells.end())
+	 mCells.find(test_cell.Set(x, y - mSideLen, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), NORTH), exits.end());
       if(x == end ||
-	 mCells.find(XMMazeCell(x + mSideLen, y, mSideLen)) != mCells.end())
+	 mCells.find(test_cell.Set(x + mSideLen, y, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), EAST), exits.end());
       if(y == end ||
-	 mCells.find(XMMazeCell(x, y + mSideLen, mSideLen)) != mCells.end())
+	 mCells.find(test_cell.Set(x, y + mSideLen, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), SOUTH), exits.end());
       //std::cout << "possible exits: " << exits.size() << std::endl;
       //std::cout << " -> ";

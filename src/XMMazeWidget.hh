@@ -111,6 +111,7 @@ public:
   }
   void SetWall(Wall wall, bool set);
   void SetWalls(bool set);
+  const XMMazeCell &Set(int x, int y, int sidelen);
   bool IsWall(Wall wall) const;
   int Adjust();
   std::vector<Wall> Walls() const;
