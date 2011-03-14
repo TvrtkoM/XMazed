@@ -215,6 +215,19 @@ void XMMazeCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
   cr->restore();
 }
 
+void XMFinishCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
+{
+  cr->save();
+  cr->set_line_width(2.0);
+  int center = (static_cast<int>(mSideLen/2));
+  cr->arc(mX + center, mY + center, center - 2, 0.0, 2.0 * M_PI);
+  cr->set_source_rgb(0.0, 0.0, 0.0);
+  cr->close_path();
+  cr->fill_preserve();
+  cr->stroke();
+  cr->restore();
+}
+
 //
 // XMMazeWidget
 //
@@ -223,7 +236,10 @@ XMMazeWidget::XMMazeWidget(Level level)
   : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600)
 {
   mSideLen = mLen/CellNumSide();
-  mA.SetSideLen(mSideLen);
+  int end = mLen - mSideLen;
+  mFinish.SetPos(end, end);
+  mFinish.SetSideLen(mSideLen);
+  mActor.SetSideLen(mSideLen);
 
   add_events(Gdk::KEY_PRESS_MASK);
   set_size_request(mLen, mLen);
@@ -240,7 +256,7 @@ bool XMMazeWidget::on_expose_event(GdkEventExpose *event)
       Gdk::Rectangle allocation = get_allocation();
 
       if(mMoveNum == 0)
-	mA.SetPos(event->area.x, event->area.y);
+	mActor.SetPos(event->area.x, event->area.y);
 
       Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
 
@@ -251,7 +267,8 @@ bool XMMazeWidget::on_expose_event(GdkEventExpose *event)
       for(it = mCells.begin(); it != mCells.end(); ++it)
 	  it->Draw(cr);
 
-      mA.Draw(cr);
+      mActor.Draw(cr);
+      mFinish.Draw(cr);
     }
   return true;
 }
@@ -276,8 +293,8 @@ void print_walls(const std::vector<Wall> &w)
 
 bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
 {
-  int curr_x = mA.GetX();
-  int curr_y = mA.GetY();
+  int curr_x = mActor.GetX();
+  int curr_y = mActor.GetY();
   int end = mLen - mSideLen;
   XMMazeCell tmp;
   std::set<XMMazeCell>::iterator it = 
@@ -285,25 +302,25 @@ bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
   // keys defined in "gdk/gdkkeysyms.h"
   if(event->keyval == 0xff53 && (curr_x < (end - 1)) && !it->IsWall(EAST))
     {
-      mA.SetX(curr_x + mSideLen);
+      mActor.SetX(curr_x + mSideLen);
       mMoveNum++;
     }
   if(event->keyval == 0xff51 && (curr_x > 0) && !it->IsWall(WEST))
     {
-      mA.SetX(curr_x - mSideLen);
+      mActor.SetX(curr_x - mSideLen);
       mMoveNum++;
     }
   if(event->keyval == 0xff54 && (curr_y < (end - 1)) && !it->IsWall(SOUTH))
     {
-      mA.SetY(curr_y + mSideLen);
+      mActor.SetY(curr_y + mSideLen);
       mMoveNum++;
     }
   if(event->keyval == 0xff52 && (curr_y > 0) && !it->IsWall(NORTH))
     {
-      mA.SetY(curr_y - mSideLen);
+      mActor.SetY(curr_y - mSideLen);
       mMoveNum++;
     }
-  if(mA == tmp.Set(end, end, mSideLen))
+  if(mActor == mFinish)
     {
       std::cout << "You have reached finish in " << mMoveNum << " moves.";
       std::cout << std::endl;

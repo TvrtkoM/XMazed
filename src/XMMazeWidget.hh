@@ -118,6 +118,15 @@ public:
   void Draw(Cairo::RefPtr<Cairo::Context> cr) const;
 };
 
+class XMFinishCell : public XMDrawable, public XMSquare
+{
+private:
+public:
+  XMFinishCell(int x = 0, int y = 0, int sidelen = 0)
+    : XMSquare(x, y, sidelen) { /* */ }
+  void Draw(Cairo::RefPtr<Cairo::Context> cr) const;
+};
+
 //
 // XMMazeWidget
 //
@@ -125,7 +134,8 @@ public:
 class XMMazeWidget : public Gtk::DrawingArea, public XMMazeLevel 
 {
 private:
-  XMActor mA;
+  XMActor mActor;
+  XMFinishCell mFinish;
   std::set<XMMazeCell> mCells;
   int mLen, mSideLen;
   int mMoveNum;
