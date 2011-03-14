@@ -278,30 +278,35 @@ bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
 {
   int curr_x = mA.GetX();
   int curr_y = mA.GetY();
+  int end = mLen - mSideLen;
+  XMMazeCell tmp;
+  std::set<XMMazeCell>::iterator it = 
+    mCells.find(tmp.Set(curr_x, curr_y, mSideLen));
   // keys defined in "gdk/gdkkeysyms.h"
-  // if key is right and position not on far right
-  if(event->keyval == 0xff53 && (curr_x < (mLen - mSideLen - 1)))
+  if(event->keyval == 0xff53 && (curr_x < (end - 1)) && !it->IsWall(EAST))
     {
       mA.SetX(curr_x + mSideLen);
       mMoveNum++;
     }
-  // if key is left and position not on far left
-  if(event->keyval == 0xff51 && (curr_x > 0))
+  if(event->keyval == 0xff51 && (curr_x > 0) && !it->IsWall(WEST))
     {
       mA.SetX(curr_x - mSideLen);
       mMoveNum++;
     }
-  // if key is down and position not bottom
-  if(event->keyval == 0xff54 && (curr_y < (mLen - mSideLen - 1)))
+  if(event->keyval == 0xff54 && (curr_y < (end - 1)) && !it->IsWall(SOUTH))
     {
       mA.SetY(curr_y + mSideLen);
       mMoveNum++;
     }
-  // if key is up and position not up
-  if(event->keyval == 0xff52 && (curr_y > 0)) 
+  if(event->keyval == 0xff52 && (curr_y > 0) && !it->IsWall(NORTH))
     {
       mA.SetY(curr_y - mSideLen);
       mMoveNum++;
+    }
+  if(mA == tmp.Set(end, end, mSideLen))
+    {
+      std::cout << "You have reached finish in " << mMoveNum << " moves.";
+      std::cout << std::endl;
     }
   queue_draw();
   return true;
