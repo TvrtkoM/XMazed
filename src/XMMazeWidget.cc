@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <stack>
 #include <iostream>
+#include <sstream>
 #include <ctime>
 #include <cstdlib>
 #include <cairomm/context.h>
@@ -134,10 +135,15 @@ inline bool XMSquare::operator==(const XMSquare &square) const
 
 void XMActor::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 {
-  // TODO: use png image as actor
+  std::stringstream ss;
+  ss << mSideLen;
+  std::string image_fn = "png/penguin/penguin" + ss.str() + ".png";
+  Cairo::RefPtr<Cairo::ImageSurface> image_sf = 
+    Cairo::ImageSurface::create_from_png(image_fn);
   cr->save();
+  cr->set_source(image_sf, mX, mY);
   cr->rectangle(mX, mY, mSideLen, mSideLen);
-  cr->set_source_rgb(0.8, 0.4, 0.6);
+  cr->paint();
   cr->stroke();
   cr->restore();
 }
@@ -217,13 +223,15 @@ void XMMazeCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 
 void XMFinishCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 {
+  std::stringstream ss;
+  ss << mSideLen;
+  std::string image_fn = "png/checkeredflag/checkeredflag" + ss.str() + ".png";
+  Cairo::RefPtr<Cairo::ImageSurface> image_sf = 
+    Cairo::ImageSurface::create_from_png(image_fn);
   cr->save();
-  cr->set_line_width(2.0);
-  int center = (static_cast<int>(mSideLen/2));
-  cr->arc(mX + center, mY + center, center - 2, 0.0, 2.0 * M_PI);
-  cr->set_source_rgb(0.0, 0.0, 0.0);
-  cr->close_path();
-  cr->fill_preserve();
+  cr->set_source(image_sf, mX, mY);
+  cr->rectangle(mX, mY, mSideLen, mSideLen);
+  cr->paint();
   cr->stroke();
   cr->restore();
 }
@@ -267,8 +275,8 @@ bool XMMazeWidget::on_expose_event(GdkEventExpose *event)
       for(it = mCells.begin(); it != mCells.end(); ++it)
 	  it->Draw(cr);
 
-      mActor.Draw(cr);
       mFinish.Draw(cr);
+      mActor.Draw(cr);
     }
   return true;
 }
