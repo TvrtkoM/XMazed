@@ -221,6 +221,11 @@ void XMMazeCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
   cr->restore();
 }
 
+void XMMazeCell::NumAdjustedReset()
+{
+  mNumAdjusted = 0;
+}
+
 void XMFinishCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 {
   std::stringstream ss;
@@ -241,19 +246,36 @@ void XMFinishCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 //
 
 XMMazeWidget::XMMazeWidget(Level level) 
-  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600)
+  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600),
+    mSideLen(mLen/CellNumSide()), mActor(0, 0, mSideLen), mBlocked(false)
 {
-  mSideLen = mLen/CellNumSide();
   int end = mLen - mSideLen;
   mFinish.SetPos(end, end);
   mFinish.SetSideLen(mSideLen);
-  mActor.SetSideLen(mSideLen);
 
   add_events(Gdk::KEY_PRESS_MASK);
   set_size_request(mLen, mLen);
   set_can_focus(true);
   signal_key_press_event().connect
     (sigc::mem_fun(*this, &XMMazeWidget::OnKeyPress));
+}
+
+void XMMazeWidget::New()
+{
+  XMMazeCell::NumAdjustedReset();
+  mCells.clear();
+  mMoveNum = 0;
+  mNewMaze = true;
+}
+
+void XMMazeWidget::SetBlocked(bool block)
+{
+  mBlocked = block;
+}
+
+inline sigc::signal<void, int> &XMMazeWidget::FinishReached()
+{
+  return mFinishReachedSgnl;
 }
 
 bool XMMazeWidget::on_expose_event(GdkEventExpose *event) 
@@ -301,6 +323,8 @@ void print_walls(const std::vector<Wall> &w)
 
 bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
 {
+  if(mBlocked)
+    return true;
   int curr_x = mActor.GetX();
   int curr_y = mActor.GetY();
   int end = mLen - mSideLen;
@@ -330,8 +354,7 @@ bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
     }
   if(mActor == mFinish)
     {
-      std::cout << "You have reached finish in " << mMoveNum << " moves.";
-      std::cout << std::endl;
+      FinishReached().emit(mMoveNum);
     }
   queue_draw();
   return true;

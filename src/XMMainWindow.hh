@@ -26,15 +26,16 @@ const std::string gladefile = "glade/XMMainWindow.glade";
 
 class XMMainWindow : public Gtk::Window 
 {
-  Glib::RefPtr<Gtk::Builder> builder;
-  Gtk::VBox *MainVBox;
-  Gtk::AspectFrame *AFrame;
+  Glib::RefPtr<Gtk::Builder> mBuilder;
+  Gtk::VBox *mMainVBox;
+  Gtk::AspectFrame *mAFrame;
 
   // maze widget
-  XMMazeWidget xmmaze;
+  XMMazeWidget mXMaze;
 
   // signal handlers
   bool OnQuit(GdkEventAny *event);
+  void OnFinishReached(int movenum);
 
 public:
   XMMainWindow();

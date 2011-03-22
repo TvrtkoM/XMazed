@@ -99,10 +99,10 @@ class XMMazeCell : public XMDrawable, public XMSquare
 {
 private:
   bool mAdjusted;
-  static int mNumAdjusted;
   std::map<Wall, bool> mWalls;
   void DrawLine(int x1, int y1, int x2, int y2, 
                 Cairo::RefPtr<Cairo::Context> cr) const;
+  static int mNumAdjusted;
 public:
   XMMazeCell(int x = 0, int y = 0, int sidelen = 0)
     : XMSquare(x, y, sidelen), mAdjusted(false)
@@ -116,6 +116,7 @@ public:
   int Adjust();
   std::vector<Wall> Walls() const;
   void Draw(Cairo::RefPtr<Cairo::Context> cr) const;
+  static void NumAdjustedReset();
 };
 
 class XMFinishCell : public XMDrawable, public XMSquare
@@ -134,15 +135,21 @@ public:
 class XMMazeWidget : public Gtk::DrawingArea, public XMMazeLevel 
 {
 private:
-  XMActor mActor;
   XMFinishCell mFinish;
   std::set<XMMazeCell> mCells;
   int mLen, mSideLen;
+  XMActor mActor;
   int mMoveNum;
   bool mNewMaze;
+  bool mBlocked;
+  // signal to inform finish has been reached
+  sigc::signal<void, int> mFinishReachedSgnl;
 public:
   XMMazeWidget(Level level = EASY);
   ~XMMazeWidget() { /* */ };
+  void New();
+  void SetBlocked(bool block);
+  sigc::signal<void, int> &FinishReached();
 protected:
   // overriding default signal handler
   virtual bool on_expose_event(GdkEventExpose *event);
