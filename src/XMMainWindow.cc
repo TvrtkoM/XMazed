@@ -67,5 +67,6 @@ void XMMainWindow::OnFinishReached(int movenum)
     {
     case(Gtk::RESPONSE_YES): mXMaze.New(); break;
     case(Gtk::RESPONSE_NO): mXMaze.SetBlocked(true); break;
+    default: mXMaze.SetBlocked(true); break;
     }
 }
