@@ -279,7 +279,7 @@ void XMMazeWidget::SetBlocked(bool block)
   mBlocked = block;
 }
 
-inline sigc::signal<void, int> &XMMazeWidget::FinishReached()
+sigc::signal<void, int> &XMMazeWidget::FinishReached()
 {
   return mFinishReachedSgnl;
 }

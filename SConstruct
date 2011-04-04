@@ -11,6 +11,6 @@ Export("env")
 SConscript("build/SConscript", exports = "env");
 
 env.Append(LIBS = ['xmwin'], CPPPATH = ['src'], 
-           LIBPATH = ['build'], CCFLAGS=['-ggdb'])
+           LIBPATH = ['build'], CCFLAGS=['-O2'])
 
 env.Program("bin/xmazed", "bin/xmazed.cc")
