@@ -1,8 +1,21 @@
-The game is far from finished, but if you want to try or help developing it install
-gtkmm & cairomm libraries and run the commands below:
+XMazed - Simple maze game.
+
+REQUIRED libs: gtkmm-2.4, cairomm-1.0
+
+USAGE:
+
+0. install SCons, gtkmm & cairomm if needed:
+
+$ sudo aptitude install scons libgtkmm-2.4-dev libcairomm-1.0-dev
+
+1. build the game
 
 $ scons
+
 ...
+
+2. run the executable from project root directory
+
 $ bin/xmazed
 
-You'll need scons as well.
+
