@@ -29,17 +29,28 @@ class XMMainWindow : public Gtk::Window
   Glib::RefPtr<Gtk::Builder> mBuilder;
   Gtk::VBox *mMainVBox;
   Gtk::AspectFrame *mAFrame;
+  Gtk::MenuItem *mQuitItem;
+  Gtk::MenuItem *mNewItem;
+  Gtk::MenuItem *mAboutItem;
+  Gtk::RadioMenuItem *mEasyRadioItem;
+  Gtk::RadioMenuItem *mMediumRadioItem;
+  Gtk::RadioMenuItem *mHardRadioItem;
+  Gtk::AboutDialog *mAboutDialog;
 
   // maze widget
   XMMazeWidget mXMaze;
 
   // signal handlers
-  bool OnQuit(GdkEventAny *event);
+  bool OnDeleteEvent(GdkEventAny *event);
+  void OnQuitItemActivate();
+  void OnNewItemActivate();
+  void OnAboutItemActivate();
+  void OnLevelRadioActivate(Level level);
   void OnFinishReached(int movenum);
 
 public:
   XMMainWindow();
-  ~XMMainWindow();
+  ~XMMainWindow() { /* */ }
   void BuildUI();
 };
 

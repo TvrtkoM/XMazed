@@ -21,10 +21,11 @@
 using namespace std;
 
 XMMainWindow::XMMainWindow() 
-  : mBuilder(Gtk::Builder::create()), mMainVBox(0L), mAFrame(0L), mXMaze(HARD)
+  : mBuilder(Gtk::Builder::create()), mMainVBox(0L), mAFrame(0L), mQuitItem(0L),
+    mEasyRadioItem(0L), mMediumRadioItem(0L), mHardRadioItem(0L)
 {
   this->signal_delete_event().connect
-    (sigc::mem_fun(*this, &XMMainWindow::OnQuit));
+    (sigc::mem_fun(*this, &XMMainWindow::OnDeleteEvent));
   mXMaze.FinishReached().connect
     (sigc::mem_fun(*this, &XMMainWindow::OnFinishReached));
   set_resizable(false);
@@ -35,23 +36,66 @@ void XMMainWindow::BuildUI()
   mBuilder->add_from_file(gladefile);
   mBuilder->get_widget("MainVBox", mMainVBox);
   mBuilder->get_widget("AFrame", mAFrame);
+  mBuilder->get_widget("quit_item", mQuitItem);
+  mQuitItem->signal_activate().connect
+    (sigc::mem_fun(*this, &XMMainWindow::OnQuitItemActivate));
+  mBuilder->get_widget("new_item", mNewItem);
+  mNewItem->signal_activate().connect
+    (sigc::mem_fun(*this, &XMMainWindow::OnNewItemActivate));
+  mBuilder->get_widget("about_item", mAboutItem);
+  mAboutItem->signal_activate().connect
+    (sigc::mem_fun(*this, &XMMainWindow::OnAboutItemActivate));
+  Gtk::RadioButtonGroup mLevelGroup;
+  mBuilder->get_widget("easy_radio_item", mEasyRadioItem);
+  mBuilder->get_widget("medium_radio_item", mMediumRadioItem);
+  mBuilder->get_widget("hard_radio_item", mHardRadioItem);
+  mEasyRadioItem->set_group(mLevelGroup);
+  mMediumRadioItem->set_group(mLevelGroup);
+  mHardRadioItem->set_group(mLevelGroup);
+  mEasyRadioItem->signal_activate().connect
+    (sigc::bind<Level>
+     (sigc::mem_fun(*this, &XMMainWindow::OnLevelRadioActivate), EASY));
+  mMediumRadioItem->signal_activate().connect
+    (sigc::bind<Level>
+     (sigc::mem_fun(*this, &XMMainWindow::OnLevelRadioActivate), MEDIUM));
+  mHardRadioItem->signal_activate().connect
+    (sigc::bind<Level>
+     (sigc::mem_fun(*this, &XMMainWindow::OnLevelRadioActivate), HARD));
+  mBuilder->get_widget("about_dialog", mAboutDialog);
   mAFrame->add(mXMaze);
   add(*mMainVBox);
   show_all();
 }
 
-XMMainWindow::~XMMainWindow()
-{
-  delete mMainVBox;
-}
-
 //
 // signal handlers
 //
-bool XMMainWindow::OnQuit(GdkEventAny *event) 
+
+bool XMMainWindow::OnDeleteEvent(GdkEventAny *event) 
 {
   hide();
   return true;
+}
+
+void XMMainWindow::OnQuitItemActivate()
+{
+  hide();
+}
+
+void XMMainWindow::OnNewItemActivate()
+{
+  mXMaze.New();
+}
+
+void XMMainWindow::OnAboutItemActivate()
+{
+  mAboutDialog->run();
+  mAboutDialog->hide();
+}
+
+void XMMainWindow::OnLevelRadioActivate(Level level)
+{
+  mXMaze.SetLevel(level);
 }
 
 void XMMainWindow::OnFinishReached(int movenum)

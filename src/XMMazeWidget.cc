@@ -142,7 +142,6 @@ void XMActor::Draw(Cairo::RefPtr<Cairo::Context> cr) const
     Cairo::ImageSurface::create_from_png(image_fn);
   cr->save();
   cr->set_source(image_sf, mX, mY);
-  cr->rectangle(mX, mY, mSideLen, mSideLen);
   cr->paint();
   cr->stroke();
   cr->restore();
@@ -246,12 +245,9 @@ void XMFinishCell::Draw(Cairo::RefPtr<Cairo::Context> cr) const
 //
 
 XMMazeWidget::XMMazeWidget(Level level) 
-  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600),
-    mSideLen(mLen/CellNumSide()), mActor(0, 0, mSideLen), mBlocked(false)
+  : XMMazeLevel(level), mMoveNum(0), mNewMaze(true), mLen(600)
 {
-  int end = mLen - mSideLen;
-  mFinish.SetPos(end, end);
-  mFinish.SetSideLen(mSideLen);
+  New();
 
   add_events(Gdk::KEY_PRESS_MASK);
   set_size_request(mLen, mLen);
@@ -262,10 +258,20 @@ XMMazeWidget::XMMazeWidget(Level level)
 
 void XMMazeWidget::New()
 {
-  XMMazeCell::NumAdjustedReset();
-  mCells.clear();
-  mMoveNum = 0;
-  mNewMaze = true;
+  mSideLen = mLen/CellNumSide();
+  mEnd = mLen - mSideLen;
+  mActor.SetSideLen(mSideLen);
+  mFinish.SetPos(mEnd, mEnd);
+  mFinish.SetSideLen(mSideLen);
+  if(mCells.size())
+    {
+      XMMazeCell::NumAdjustedReset();
+      mCells.clear();
+      mMoveNum = 0;
+      mNewMaze = true;
+      queue_draw();
+    }
+  mBlocked = false;
 }
 
 void XMMazeWidget::SetBlocked(bool block)
@@ -285,13 +291,13 @@ bool XMMazeWidget::on_expose_event(GdkEventExpose *event)
     {
       Gdk::Rectangle allocation = get_allocation();
 
-      if(mMoveNum == 0)
-	mActor.SetPos(event->area.x, event->area.y);
-
       Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
 
       if(mNewMaze)
-	BuildMaze();
+	{
+	  mActor.SetPos(event->area.x, event->area.y);
+	  BuildMaze();
+	}
 
       std::set<XMMazeCell>::iterator it;
       for(it = mCells.begin(); it != mCells.end(); ++it)
@@ -327,12 +333,11 @@ bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
     return true;
   int curr_x = mActor.GetX();
   int curr_y = mActor.GetY();
-  int end = mLen - mSideLen;
   XMMazeCell tmp;
   std::set<XMMazeCell>::iterator it = 
     mCells.find(tmp.Set(curr_x, curr_y, mSideLen));
   // keys defined in "gdk/gdkkeysyms.h"
-  if(event->keyval == 0xff53 && (curr_x < (end - 1)) && !it->IsWall(EAST))
+  if(event->keyval == 0xff53 && (curr_x < (mEnd - 1)) && !it->IsWall(EAST))
     {
       mActor.SetX(curr_x + mSideLen);
       mMoveNum++;
@@ -342,7 +347,7 @@ bool XMMazeWidget::OnKeyPress(GdkEventKey *event)
       mActor.SetX(curr_x - mSideLen);
       mMoveNum++;
     }
-  if(event->keyval == 0xff54 && (curr_y < (end - 1)) && !it->IsWall(SOUTH))
+  if(event->keyval == 0xff54 && (curr_y < (mEnd - 1)) && !it->IsWall(SOUTH))
     {
       mActor.SetY(curr_y + mSideLen);
       mMoveNum++;
@@ -371,7 +376,6 @@ void XMMazeWidget::BuildMaze()
     {
       XMMazeCell curr_cell = next_cell;
       std::vector<Wall> exits = curr_cell.Walls();
-      int end = mLen - mSideLen;
       int x = curr_cell.GetX(); int y = curr_cell.GetY();
       // if((y > mLen - mSideLen || x > mLen - mSideLen) ||
       // (y < 0 || x < 0))
@@ -384,10 +388,10 @@ void XMMazeWidget::BuildMaze()
       if(y == 0 || 
 	 mCells.find(test_cell.Set(x, y - mSideLen, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), NORTH), exits.end());
-      if(x == end ||
+      if(x == mEnd ||
 	 mCells.find(test_cell.Set(x + mSideLen, y, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), EAST), exits.end());
-      if(y == end ||
+      if(y == mEnd ||
 	 mCells.find(test_cell.Set(x, y + mSideLen, mSideLen)) != mCells.end())
 	exits.erase(std::remove(exits.begin(), exits.end(), SOUTH), exits.end());
       //std::cout << "possible exits: " << exits.size() << std::endl;

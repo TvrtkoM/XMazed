@@ -137,7 +137,7 @@ class XMMazeWidget : public Gtk::DrawingArea, public XMMazeLevel
 private:
   XMFinishCell mFinish;
   std::set<XMMazeCell> mCells;
-  int mLen, mSideLen;
+  int mLen, mSideLen, mEnd;
   XMActor mActor;
   int mMoveNum;
   bool mNewMaze;
@@ -145,7 +145,7 @@ private:
   // signal to inform finish has been reached
   sigc::signal<void, int> mFinishReachedSgnl;
 public:
-  XMMazeWidget(Level level = EASY);
+  XMMazeWidget(Level level = HARD);
   ~XMMazeWidget() { /* */ };
   void New();
   void SetBlocked(bool block);
